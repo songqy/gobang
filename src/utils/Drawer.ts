@@ -9,12 +9,14 @@ class Drawer {
     this.ctx.beginPath();
     this.ctx.moveTo(begin.x, begin.y);
     this.ctx.lineTo(end.x, end.y);
+    this.ctx.lineWidth = 1 * window.devicePixelRatio;
     this.ctx.stroke();
   }
 
   drawCircle(begin: Coordinate, radius: number): void {
     this.ctx.beginPath();
     this.ctx.arc(begin.x, begin.y, radius, 0, Math.PI * 2);
+    this.ctx.lineWidth = 1 * window.devicePixelRatio;
     this.ctx.stroke();
   }
 }

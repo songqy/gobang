@@ -1,40 +1,83 @@
 import Drawer from './Drawer';
-import type { PIECE } from './constants';
+import { PIECE } from './constants';
+
+export interface GobangOptions {
+  lines?: number;
+  /** 棋子间距 */
+  distance?: number;
+  /** 棋子半径 */
+  radius?: number;
+}
 
 class Board {
   drawer: Drawer;
   lines: number;
   pieces: PIECE[][];
-  space: number;
+  /** 棋子间距 */
+  distance: number;
+  /** 棋盘宽度 */
   width: number;
+  /** 棋盘高度 */
   height: number;
+  /** 棋子半径 */
+  radius: number;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, opts?: GobangOptions) {
     const ctx = canvas.getContext('2d');
     const drawer = new Drawer(ctx);
 
     this.drawer = drawer;
 
-    canvas.addEventListener('mousedown', (ev) => {
-      console.log(ev.offsetX, ev.offsetY);
+    canvas.addEventListener('mousedown', this.onMousedown.bind(this));
 
-      drawer.drawCircle({ x: ev.offsetX, y: ev.offsetY }, 20);
-    });
+    this.lines = opts?.lines || 12;
+    this.distance = (opts?.distance || 50) * window.devicePixelRatio;
+    this.radius = (opts?.radius || 20) * window.devicePixelRatio;
+    this.width = this.lines * this.distance;
+    this.height = this.width;
 
-    this.lines = 10;
-    this.space = 30;
-    this.width = 800;
-    this.height = 800;
+    canvas.width = this.width;
+    canvas.height = this.height;
   }
 
-  init(): void {
+  onMousedown(ev: MouseEvent) {
+    console.log(ev.offsetX, ev.offsetY);
+
+    const i = Math.floor((ev.offsetX * window.devicePixelRatio) / this.distance);
+    const j = Math.floor((ev.offsetY * window.devicePixelRatio) / this.distance);
+
+    console.log(i, j);
+
+    if (this.pieces[i][j] === PIECE.EMPTY) {
+      this.pieces[i][j] = PIECE.WHITE;
+      this.drawer.drawCircle(
+        { x: this.distance * (i + 0.5), y: this.distance * (j + 0.5) },
+        this.radius
+      );
+    }
+  }
+
+  init() {
     // this.initBoard();
+    this.initPieces();
   }
 
-  initBoard(): void {
+  initPieces() {
+    const maxLen = this.width / this.distance;
+    this.pieces = [];
+    for (let i = 0; i < maxLen; ++i) {
+      const tmp = [];
+      for (let j = 0; j < maxLen; ++j) {
+        tmp.push(PIECE.EMPTY);
+      }
+      this.pieces.push(tmp);
+    }
+  }
+
+  initBoard() {
     for (let i = 0; i < this.lines; ++i) {
-      const offset = (i + 1) * this.space;
-      console.log('offset', offset, this.space);
+      const offset = (i + 0.5) * this.distance;
+      console.log('offset', offset, this.distance);
       this.drawer.drawLine({ x: 0, y: offset }, { x: this.width, y: offset });
       this.drawer.drawLine({ x: offset, y: 0 }, { x: offset, y: this.height });
     }
