@@ -1,5 +1,6 @@
 import Drawer from './Drawer';
 import { PIECE } from './constants';
+import { getScore } from '../worker';
 
 export interface GobangOptions {
   lines?: number;
@@ -22,6 +23,8 @@ class Board {
   /** 棋子半径 */
   radius: number;
 
+  currentP: PIECE.BLACK | PIECE.WHITE;
+
   constructor(canvas: HTMLCanvasElement, opts?: GobangOptions) {
     const ctx = canvas.getContext('2d');
     const drawer = new Drawer(ctx);
@@ -38,27 +41,34 @@ class Board {
 
     canvas.width = this.width;
     canvas.height = this.height;
+
+    this.currentP = PIECE.WHITE;
   }
 
-  onMousedown(ev: MouseEvent) {
-    console.log(ev.offsetX, ev.offsetY);
+  async onMousedown(ev: MouseEvent) {
+    // console.log(ev.offsetX, ev.offsetY);
 
     const i = Math.floor((ev.offsetX * window.devicePixelRatio) / this.distance);
     const j = Math.floor((ev.offsetY * window.devicePixelRatio) / this.distance);
 
-    console.log(i, j);
+    // console.log(i, j);
 
     if (this.pieces[i][j] === PIECE.EMPTY) {
-      this.pieces[i][j] = PIECE.WHITE;
+      const p = this.currentP;
+      const s = await getScore(this.pieces, [i, j], p);
+      console.log('s', s);
+      this.pieces[i][j] = p;
       this.drawer.drawCircle(
         { x: this.distance * (i + 0.5), y: this.distance * (j + 0.5) },
-        this.radius
+        this.radius,
+        p === PIECE.WHITE ? '#ffffff' : '#000000'
       );
+      this.currentP = this.currentP === PIECE.WHITE ? PIECE.BLACK : PIECE.WHITE;
     }
   }
 
   init() {
-    // this.initBoard();
+    this.initBoard();
     this.initPieces();
   }
 
@@ -77,7 +87,7 @@ class Board {
   initBoard() {
     for (let i = 0; i < this.lines; ++i) {
       const offset = (i + 0.5) * this.distance;
-      console.log('offset', offset, this.distance);
+      // console.log('offset', offset, this.distance);
       this.drawer.drawLine({ x: 0, y: offset }, { x: this.width, y: offset });
       this.drawer.drawLine({ x: offset, y: 0 }, { x: offset, y: this.height });
     }

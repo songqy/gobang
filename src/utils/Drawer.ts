@@ -13,11 +13,13 @@ class Drawer {
     this.ctx.stroke();
   }
 
-  drawCircle(begin: Coordinate, radius: number): void {
+  drawCircle(begin: Coordinate, radius: number, color: string): void {
     this.ctx.beginPath();
     this.ctx.arc(begin.x, begin.y, radius, 0, Math.PI * 2);
     this.ctx.lineWidth = 1 * window.devicePixelRatio;
     this.ctx.stroke();
+    this.ctx.fillStyle = color;
+    this.ctx.fill();
   }
 }
 

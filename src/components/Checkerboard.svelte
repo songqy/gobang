@@ -1,16 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import Gobang from '../utils/Gobang';
-  import { addPool } from '../worker';
 
   export let title: string;
 
   let canvas: HTMLCanvasElement | undefined;
 
+  const lines = 8;
+  const distance = 60;
+  const radius = 20;
+  const styleStr = `width:${lines * distance}px;height:${lines * distance}px`;
+
   onMount(() => {
-    addPool();
     if (canvas) {
-      const gobang = new Gobang(canvas, { distance: 60, radius: 20, lines: 10 });
+      const gobang = new Gobang(canvas, { distance, radius, lines });
       gobang.init();
     }
   });
@@ -18,5 +21,5 @@
 
 <div>
   <div>{title}</div>
-  <canvas id="gobang" bind:this={canvas} style="width: 600px;height:600px" />
+  <canvas id="gobang" bind:this={canvas} style={styleStr} />
 </div>
