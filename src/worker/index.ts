@@ -1,15 +1,17 @@
-import workerpool from 'workerpool';
-import computeSource from './computeSource';
 import type { PIECE } from '../utils/constants';
+import Worker from './worker?worker';
 
-const pool = workerpool.pool();
+const worker = new Worker();
 
 export const getScore = async (
   pieces: PIECE[][],
   step: [number, number],
   piece: PIECE.BLACK | PIECE.WHITE
 ) => {
-  const res = await pool.exec(computeSource, [pieces, step, piece]);
-  pool.terminate();
-  return res;
+  return new Promise((resolve) => {
+    worker.postMessage([pieces, step, piece]);
+    worker.addEventListener('message', (e) => {
+      resolve(e.data[0]);
+    });
+  });
 };
