@@ -1,7 +1,11 @@
 import type { PIECE } from '../utils/constants';
-import Worker from './worker?worker';
 
-const worker = new Worker();
+// import Worker from './worker?worker';
+// const worker = new Worker();
+
+const worker = new Worker(
+  new URL('./worker', import.meta.url), { type: 'module' }
+)
 
 export const getScore = async (
   pieces: PIECE[][],
