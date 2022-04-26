@@ -10,7 +10,7 @@ export default (pieces: PIECE[][], step: [number, number], piece: PIECE.BLACK | 
     2: 100,
     3: 1000,
     4: 10000,
-    5: 100000
+    5: 100000,
   };
 
   const getSource = (c: number, e: number) => {
