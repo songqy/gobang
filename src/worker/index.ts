@@ -9,7 +9,7 @@ export const getScore = async (
   pieces: PIECE[][],
   step: [number, number],
   piece: PIECE.BLACK | PIECE.WHITE
-) => {
+): Promise<number> => {
   return new Promise((resolve) => {
     worker.postMessage([pieces, step, piece]);
     worker.addEventListener('message', (e) => {

@@ -22,6 +22,8 @@ class Board {
   height: number;
   /** 棋子半径 */
   radius: number;
+  /** 棋盘得分 */
+  source: number;
 
   currentP: PIECE.BLACK | PIECE.WHITE;
 
@@ -43,6 +45,7 @@ class Board {
     canvas.height = this.height;
 
     this.currentP = PIECE.WHITE;
+    this.source = 0;
   }
 
   async onMousedown(ev: MouseEvent) {
@@ -55,8 +58,10 @@ class Board {
 
     if (this.pieces[i][j] === PIECE.EMPTY) {
       const p = this.currentP;
-      const s = await getScore(this.pieces, [i, j], p);
-      console.log('s', s);
+      const diffSource = await getScore(this.pieces, [i, j], p);
+      this.source += diffSource;
+      console.log('diffSource', diffSource);
+      console.log('source', this.source);
       this.pieces[i][j] = p;
       this.drawer.drawCircle(
         { x: this.distance * (i + 0.5), y: this.distance * (j + 0.5) },
