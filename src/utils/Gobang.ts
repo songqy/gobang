@@ -1,6 +1,7 @@
 import Drawer from './Drawer';
 import { PIECE } from './constants';
-import { getScore } from '../worker';
+import { initPieces } from './index';
+import { getScore, inferNext } from '../worker';
 
 export interface GobangOptions {
   lines?: number;
@@ -24,8 +25,12 @@ class Board {
   radius: number;
   /** 棋盘得分 */
   source: number;
+  /** 已下棋子列表 */
+  activePieces: Coordinate[];
+  /** 能否下棋 */
+  enablePlace: boolean;
 
-  currentP: PIECE.BLACK | PIECE.WHITE;
+  // currentP: PIECE.BLACK | PIECE.WHITE;
 
   constructor(canvas: HTMLCanvasElement, opts?: GobangOptions) {
     const ctx = canvas.getContext('2d');
@@ -44,32 +49,46 @@ class Board {
     canvas.width = this.width;
     canvas.height = this.height;
 
-    this.currentP = PIECE.WHITE;
+    // this.currentP = PIECE.WHITE;
     this.source = 0;
+    this.activePieces = [];
+    this.enablePlace = true;
   }
 
   async onMousedown(ev: MouseEvent) {
-    // console.log(ev.offsetX, ev.offsetY);
+    if (!this.enablePlace) return;
+    const x = Math.floor((ev.offsetX * window.devicePixelRatio) / this.distance);
+    const y = Math.floor((ev.offsetY * window.devicePixelRatio) / this.distance);
 
-    const i = Math.floor((ev.offsetX * window.devicePixelRatio) / this.distance);
-    const j = Math.floor((ev.offsetY * window.devicePixelRatio) / this.distance);
+    if (this.pieces[x][y] === PIECE.EMPTY) {
+      this.enablePlace = false;
 
-    // console.log(i, j);
+      await this.placePiece(x, y, PIECE.WHITE);
 
-    if (this.pieces[i][j] === PIECE.EMPTY) {
-      const p = this.currentP;
-      const diffSource = await getScore(this.pieces, [i, j], p);
-      this.source += diffSource;
-      console.log('diffSource', diffSource);
-      console.log('source', this.source);
-      this.pieces[i][j] = p;
-      this.drawer.drawCircle(
-        { x: this.distance * (i + 0.5), y: this.distance * (j + 0.5) },
-        this.radius,
-        p === PIECE.WHITE ? '#ffffff' : '#000000'
-      );
-      this.currentP = this.currentP === PIECE.WHITE ? PIECE.BLACK : PIECE.WHITE;
+      const inferD = await inferNext(this.pieces, this.activePieces);
+      console.log('inferD', inferD);
+      const { next } = inferD;
+      if (next) {
+        await this.placePiece(next.x, next.y, PIECE.BLACK);
+      }
+
+      this.enablePlace = true;
     }
+  }
+
+  // 落子
+  async placePiece(x: number, y: number, piece: PIECE.WHITE | PIECE.BLACK) {
+    const diffSource = await getScore(this.pieces, [x, y], piece);
+    console.log('diffSource', diffSource);
+    console.log('source', this.source);
+    this.source += diffSource;
+    this.pieces[x][y] = piece;
+    this.activePieces.push({ x, y });
+    this.drawer.drawCircle(
+      { x: this.distance * (x + 0.5), y: this.distance * (y + 0.5) },
+      this.radius,
+      piece === PIECE.WHITE ? '#ffffff' : '#000000'
+    );
   }
 
   init() {
@@ -78,15 +97,7 @@ class Board {
   }
 
   initPieces() {
-    const maxLen = this.width / this.distance;
-    this.pieces = [];
-    for (let i = 0; i < maxLen; ++i) {
-      const tmp = [];
-      for (let j = 0; j < maxLen; ++j) {
-        tmp.push(PIECE.EMPTY);
-      }
-      this.pieces.push(tmp);
-    }
+    this.pieces = initPieces(this.lines, PIECE.EMPTY);
   }
 
   initBoard() {

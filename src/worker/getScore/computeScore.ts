@@ -1,4 +1,4 @@
-import { PIECE, WIN_CONNECT_NUM, CONNECT_SOURCE } from '../utils/constants';
+import { PIECE, WIN_CONNECT_NUM, CONNECT_SOURCE } from '../../utils/constants';
 
 interface CountItem {
   count: number;
@@ -89,7 +89,7 @@ const computeDiff = (
  * @param {(PIECE.BLACK | PIECE.WHITE)} piece 当前要下棋的黑白
  * @returns
  */
-const computeSource = (
+const computeScore = (
   pieces: PIECE[][],
   step: [number, number],
   piece: PIECE.BLACK | PIECE.WHITE
@@ -131,4 +131,4 @@ const computeSource = (
   return diffSource;
 };
 
-export default computeSource;
+export default computeScore;
