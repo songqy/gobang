@@ -6,8 +6,8 @@ interface CountItem {
 }
 
 const computeByCount = (countList: CountItem[]) => {
-  let blackSource = 0,
-    whiteSource = 0;
+  let blackScore = 0,
+    whiteScore = 0;
   for (let i = 0; i < countList.length; ++i) {
     const { piece, count } = countList[i];
     if (piece !== PIECE.EMPTY) {
@@ -24,13 +24,13 @@ const computeByCount = (countList: CountItem[]) => {
       const emptyCount = left + right > 4 ? 4 : left + right;
       const source = CONNECT_SOURCE[count] * (10 + emptyCount);
       if (piece === PIECE.BLACK) {
-        blackSource += source;
+        blackScore += source;
       } else {
-        whiteSource += source;
+        whiteScore += source;
       }
     }
   }
-  return blackSource - whiteSource;
+  return blackScore - whiteScore;
 };
 
 type PIECE_CB = (curPiece: PIECE) => void;
@@ -82,7 +82,7 @@ const computeDiff = (
 };
 
 /**
- * 计算得分
+ * 计算得分差值
  * @param {number} currentSource 当前得分
  * @param {PIECE[][]} pieces 当前棋盘
  * @param {[number, number]} step 当前要下棋的坐标

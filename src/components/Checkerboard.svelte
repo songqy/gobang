@@ -6,7 +6,7 @@
 
   let canvas: HTMLCanvasElement | undefined;
 
-  const lines = 8;
+  const lines = 13;
   const distance = 60;
   const radius = 20;
   const styleStr = `width:${lines * distance}px;height:${lines * distance}px`;

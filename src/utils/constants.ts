@@ -17,3 +17,5 @@ export const CONNECT_SOURCE = {
 export const WIN_CONNECT_NUM = 5;
 // 胜利分数
 export const WIN_SOURCE = CONNECT_SOURCE[5] * 10;
+// 分数边界
+export const MAX_SCORE = 9999999;
